@@ -2,6 +2,16 @@ const os = require("os-utils");
 const commander = require("commander");
 const term = require('terminal-kit').terminal;
 
+const asciiArt = `
+ ____  _             _            
+|  _ \\| |           | |           
+| |_) | |_   _  __ _| |_ ___  _ __ 
+|  _ <| | | | |/ _\` | __/ _ \\| '__|
+| |_) | | |_| | (_| | || (_) | |   
+|____/|_|\\__,_|\\__,_|\\__\\___/|_|   
+                                  
+`;
+
 const program = new commander.Command();
 
 // a promise returns an object which need to be awaited on to retrieve the results
@@ -23,6 +33,7 @@ function getPcHealth() {
 function terminalBeauty(pcHealth){
     term.clear();
     term.moveTo(1, 1);
+    term.brightWhite(asciiArt);
     term.brightWhite('PC Health Report:\n\n');
     term.green('CPU Usage: ').cyan(pcHealth.cpu + '\n');
     term.green('Free Memory: ').cyan(pcHealth.freeMemory + '\n');
