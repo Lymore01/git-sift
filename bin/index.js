@@ -1,62 +1,48 @@
-const os = require("os-utils");
-const commander = require("commander");
-const term = require('terminal-kit').terminal;
+const readline = require("readline");
+const term = require("terminal-kit").terminal;
+const figlet = require("figlet");
+const program = require("../src/utils/commander");
+const repositoryName = require("../src/commands/getRepoName");
+const cloneRepository = require("../src/commands/cloneCommand");
+const artEntry = require("../src/utils/cliArtDesigns");
+const cli = require("../src/lib/cli");
 
-const asciiArt = `
- ____  _             _            
-|  _ \\| |           | |           
-| |_) | |_   _  __ _| |_ ___  _ __ 
-|  _ <| | | | |/ _\` | __/ _ \\| '__|
-| |_) | | |_| | (_| | || (_) | |   
-|____/|_|\\__,_|\\__,_|\\__\\___/|_|   
-                                  
-`;
+// TODO : make sure the cli entry point is functioning
 
-const program = new commander.Command();
+async function* startCli() {
+  await artEntry();
+  yield cli();
 
-// a promise returns an object which need to be awaited on to retrieve the results
-function getPcHealth() {
-    // we use a promise to handle async function "os.cpuUsage(callBack - resolves with the cpu usage object)"
-  return new Promise((resolve) => {
-    os.cpuUsage((cpuPercent) => {
-      resolve({
-        cpu: `${(cpuPercent * 100).toFixed(2)}%`,
-        freeMemory: `${(os.freememPercentage() * 100).toFixed(2)}%`,
-        totalMemory: `${(os.totalmem() / 1024).toFixed(2)} MB`,
-        freeMemoryInMB: `${(os.freemem() / 1024).toFixed(2)} MB`,
-        diskUsage: "Not Implemented",
-      });
+  yield program
+    .command("clone")
+    .description("Clone a repository")
+    .option("-s, --scan", "Scan a repo before cloning")
+    .option("-n, --name", "Display the repository name")
+    .option("-i, --info", "Display repository general information")
+    .option("-si, --size", "Display repository size")
+    .argument("<repoURL>", "The repository URL to clone")
+    .action(async (repoURL, options) => {
+      try {
+        // option
+        if (options.scan) {
+          repositoryInfo(repoURL, "");
+        }
+        if (options.name) {
+          await repositoryName(repoURL, "--name");
+        }
+        if (options.info) {
+          repositoryInfo(repoURL, "--info");
+        }
+
+        // cloneRepository(repoURL)
+      } catch (error) {
+        console.error("Failed to clone:", error);
+      }
     });
-  });
+
+  // to pass the command-line arguments
+  program.parse(process.argv);
+
 }
 
-function terminalBeauty(pcHealth){
-    term.clear();
-    term.moveTo(1, 1);
-    term.brightWhite(asciiArt);
-    term.brightWhite('PC Health Report:\n\n');
-    term.green('CPU Usage: ').cyan(pcHealth.cpu + '\n');
-    term.green('Free Memory: ').cyan(pcHealth.freeMemory + '\n');
-    term.green('Total Memory: ').cyan(pcHealth.totalMemory + '\n');
-    term.green('Free Memory (MB): ').cyan(pcHealth.freeMemoryInMB + '\n');
-    term.green('Disk Usage: ').cyan(pcHealth.diskUsage + '\n');
-    term.brightWhite('\nReport complete.\n');
-}
-
-program
-    .command('check-health') // the command ie. node index.js check-health
-    .description("Check pc health") // this is going to be displayed when a user concat '?' at the end of the command 
-    .action(async () =>{
-        try {
-            const pcHealth = await getPcHealth();
-           
-            terminalBeauty(pcHealth)
-
-          } catch (error) {
-            term.red('Error: ').brightWhite(error.message);
-          }
-          term.processExit(); 
-    })
-
-program.parse(process.argv)
-
+startCli().next();

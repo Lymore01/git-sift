@@ -17,8 +17,10 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.4",
+    "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
+    "figlet": "^1.7.0",
     "os-utils": "^0.0.14",
     "simple-git": "^3.25.0",
     "terminal-kit": "^3.1.1"

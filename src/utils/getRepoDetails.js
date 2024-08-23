@@ -7,7 +7,6 @@ function getRepoDetails(repoURL){
     const pathSegments = parsedURL.pathname.split('/')
     const owner = pathSegments[1];
     const repo = pathSegments[2].replace('.git', '');
-
     return {owner, repo}
 }
 
