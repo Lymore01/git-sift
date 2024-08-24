@@ -51,7 +51,7 @@ async function printFooter() {
   term.bold("   For more information and help, visit:\n");
   term.cyan("   https://github.com/your-repo/git-sift\n");
   term.bold("   Contact:")(" kelly@gmail.com\n");
-  term.processExit();
+  // term.processExit();
 }
 
 async function artEntry() {
