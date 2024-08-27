@@ -1,28 +1,15 @@
 const fs = require("fs");
 const path = require("path");
 const term = require("terminal-kit").terminal;
+const { readFile } = require("../services/fileService");
 
-
-function readAsciiFromFile() {
-  // file path
-  const filePath = path
-    .join(__dirname, "..", "assets", "logo.txt")
-    .replace(/\\/g, "/"); // replace the backslashes with forward slash
-
-  // read the txt file
-  return new Promise((resolve, reject) => {
-    fs.readFile(filePath, "utf8", (err, data) => {
-      if (err) {
-        reject("Error reading logo file:", err);
-      }
-      resolve(data);
-    });
-  });
-}
 
 async function printHeader() {
+  const filePath = path
+    .join(__dirname, "..", "assets", "logo.txt")
+    .replace(/\\/g, "/");
   try {
-    const ascii = await readAsciiFromFile();
+    const ascii = await readFile(filePath);
     term.bold.brightCyan(ascii);
     term.black("\n\n\n");
     term.cyan("    Welcome to Git Sift! \n");

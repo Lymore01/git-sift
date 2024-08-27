@@ -34,7 +34,6 @@ function listRepoContents(owner, repo, path = "") {
         //   event handler for when the response ends
         res.on("end", async () => {
           try {
-            // parse the response data as JSON
             const contents = JSON.parse(data);
 
             for (const item of contents) {
@@ -96,8 +95,57 @@ function getRepositoryInformation(repoURL) {
   });
 }
 
+function fetchAllDependencies(
+  owner,
+  repo,
+  apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/package-lock.json`
+) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      headers: { "User-Agent": "Node.js" },
+    };
+    https
+      .get(apiUrl, options, (res) => {
+        let data = "";
+        res.on("data", (chunk) => (data += chunk));
+
+        res.on("end", async () => {
+          try {
+            const response = JSON.parse(data);
+            const downloadUrl = response.download_url;
+            if (downloadUrl) {
+              https
+                .get(downloadUrl, options, (res) => {
+                  let packageData = "";
+                  res.on("data", (chunk) => (packageData += chunk));
+                  res.on("end", () => {
+                    try {
+                      const packagesData = JSON.parse(packageData);
+                      resolve(packagesData.packages);
+                    } catch (error) {
+                      reject("Error: ", error);
+                    }
+                  });
+                })
+                .on("error", (err) => {
+                  reject("Error parsing packages: ", err);
+                });
+            } else {
+              reject("No download URL found for package-lock.json");
+            }
+          } catch (error) {
+            reject(`Error fetching or parsing response: ${error.message}`);
+          }
+        });
+      })
+      .on("error", (err) => reject("Request failed: ", err.message));
+  });
+}
+
+
 module.exports = {
   listRepoContents,
   fetchFileContents,
   getRepositoryInformation,
+  fetchAllDependencies
 };

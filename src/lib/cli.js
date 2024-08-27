@@ -4,7 +4,6 @@ const handleCliCommands = require("../utils/commander");
 
 
 async function handleCommands(command) {
-  // trim to remove white spaces before and after the command
   switch (command.trim()) {
     case "help":
       term.green("Available commands:\n");
@@ -18,11 +17,11 @@ async function handleCommands(command) {
       await handleCliCommands(command.trim())
   }
 }
-// create readline interface
+
 async function cli() {
   const rl = readline.createInterface({
-    input: process.stdin, //clone -n http://repo.git
-    output: process.stdout, //repo name: "hello"
+    input: process.stdin, 
+    output: process.stdout,
     prompt: "git-sift> ",
   });
 
@@ -30,7 +29,7 @@ async function cli() {
 
   rl.on("line", async(line) => {
     await handleCommands(line);
-    rl.prompt(); // Keep the prompt active
+    rl.prompt(); 
   }).on("close", () => {
     term.green("Exiting CLI...\n");
     process.exit(0);
