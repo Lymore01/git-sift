@@ -5,20 +5,6 @@ const https = require("https");
 */
 
 function listRepoContents(owner, repo, path = "") {
-  // you can as well use axios for more simpler api handling
-  /* 
-          code:
-          try{
-              const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, 
-              headers:{
-              'User-Agent':'Node.js}
-              )
-              return response.data //axios will automatically parse JSON responses
-          }catch{
-              handle errors here
-          }
-      */
-  // handle nesting inside the main function
   return new Promise((resolve, reject) => {
     const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
 
@@ -35,20 +21,27 @@ function listRepoContents(owner, repo, path = "") {
         res.on("end", async () => {
           try {
             const contents = JSON.parse(data);
-
-            for (const item of contents) {
-              if (item.type === "dir") {
-                // the function call's itself to fetch subdirectories contents
-                item.contents = await listRepoContents(owner, repo, item.path);
-              } else if (item.type === "file") {
-                fetchFileContents(item.download_url)
-                  .then((contents) => {
-                    item.fileContent = contents;
-                  })
-                  .catch((err) => console.error(err));
+            if (Array.isArray(contents)) {
+              for (const item of contents) {
+                if (item.type === "dir") {
+                  // the function call's itself to fetch subdirectories contents
+                  item.contents = await listRepoContents(
+                    owner,
+                    repo,
+                    item.path
+                  );
+                } else if (item.type === "file") {
+                  fetchFileContents(item.download_url)
+                    .then((contents) => {
+                      item.fileContent = contents;
+                      resolve(contents);
+                    })
+                    .catch((err) => console.error(err));
+                }
               }
+            }else{
+              resolve(contents)
             }
-            resolve(contents);
           } catch (error) {
             reject(`Failed to parse API response: ${error.message}`);
           }
@@ -142,10 +135,9 @@ function fetchAllDependencies(
   });
 }
 
-
 module.exports = {
   listRepoContents,
   fetchFileContents,
   getRepositoryInformation,
-  fetchAllDependencies
+  fetchAllDependencies,
 };

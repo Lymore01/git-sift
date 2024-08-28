@@ -1,4 +1,4 @@
-// add something to file
+// file services
 
 const fs = require("fs");
 
@@ -13,7 +13,6 @@ function readFile(filePath) {
   });
 }
 
-// add something to file
 function addTextToFile(filePath, textToAppend) {
   return Promise((resolve, reject) => {
     fs.appendFile(filePath, textToAppend, (err) => {

@@ -12,5 +12,3 @@ async function getRepoName(repoUrl) {
 
 module.exports = getRepoName;
 
-  // const texts = [`Repository name: ${repo}\n`, `Repository author: ${owner}\n`];
-  // 
